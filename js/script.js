@@ -3,6 +3,7 @@
   const root = document.documentElement;
   const navbar = document.querySelector('.navbar');
   const portrait = document.querySelector('.portrait-wrap');
+  const marquee = document.querySelector('.marquee');
   const themeToggle = document.querySelector('#themeToggle');
   const mobileMenu = document.querySelector('#navbarMenu');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -29,6 +30,7 @@
       const mobile = window.innerWidth < 768;
       portrait.style.transform = `translate3d(0, ${mobile ? -progress * 20 : -progress * 72}px, 0) scale(${1 - progress * (mobile ? .025 : .075)})`;
       portrait.style.opacity = String(1 - progress * .94);
+      marquee.style.setProperty('--scroll-shift', `${progress * -8}vw`);
     }
     ticking = false;
   }
