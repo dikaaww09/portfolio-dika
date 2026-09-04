@@ -16,15 +16,19 @@
   const sectionIds = ["beranda", "perkenalan", "tentang", "keahlian", "proyek", "kontak"];
   const visibleSections = new Map();
 
-  document.querySelector("#year").textContent = new Date().getFullYear();
+  const year = document.querySelector("#year");
+
+  if (year) year.textContent = new Date().getFullYear();
 
   function setTheme(theme) {
     const isLight = theme === "light";
 
     root.dataset.theme = isLight ? "light" : "dark";
     root.setAttribute("data-bs-theme", isLight ? "light" : "dark");
-    themeToggle.setAttribute("aria-pressed", String(isLight));
-    themeToggle.setAttribute("aria-label", isLight ? "Aktifkan tema gelap" : "Aktifkan tema terang");
+    if (themeToggle) {
+      themeToggle.setAttribute("aria-pressed", String(isLight));
+      themeToggle.setAttribute("aria-label", isLight ? "Aktifkan tema gelap" : "Aktifkan tema terang");
+    }
   }
 
   function moveIndicator(activeLink) {
@@ -76,21 +80,23 @@
     if (candidates.length) setActiveSection(candidates[0].id);
   }
 
-  const sectionObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => visibleSections.set(entry.target.id, entry));
-      chooseActiveSection();
-    },
-    {
-      rootMargin: "-18% 0px -52% 0px",
-      threshold: [0, 0.15, 0.35, 0.6],
-    },
-  );
+  if ("IntersectionObserver" in window) {
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => visibleSections.set(entry.target.id, entry));
+        chooseActiveSection();
+      },
+      {
+        rootMargin: "-18% 0px -52% 0px",
+        threshold: [0, 0.15, 0.35, 0.6],
+      },
+    );
 
-  sectionIds
-    .map((id) => document.getElementById(id))
-    .filter(Boolean)
-    .forEach((section) => sectionObserver.observe(section));
+    sectionIds
+      .map((id) => document.getElementById(id))
+      .filter(Boolean)
+      .forEach((section) => sectionObserver.observe(section));
+  }
 
   navItems.forEach((item) => {
     const link = item.querySelector(".nav-link");
@@ -99,15 +105,17 @@
     item.addEventListener("click", () => {
       setActiveSection(link.hash.slice(1));
 
-      if (mobileMenu.classList.contains("show")) {
+      if (mobileMenu?.classList.contains("show") && window.bootstrap) {
         bootstrap.Collapse.getOrCreateInstance(mobileMenu).hide();
       }
     });
   });
 
-  navMenu.addEventListener("mouseleave", () => {
-    moveIndicator(document.querySelector("#navbarMenu .nav-link.active"));
-  });
+  if (navMenu) {
+    navMenu.addEventListener("mouseleave", () => {
+      moveIndicator(document.querySelector("#navbarMenu .nav-link.active"));
+    });
+  }
 
   document.querySelectorAll('a[href="#beranda"]').forEach((link) => {
     if (!link.classList.contains("nav-link")) {
@@ -115,9 +123,11 @@
     }
   });
 
-  mobileMenu.addEventListener("shown.bs.collapse", () => {
-    moveIndicator(document.querySelector("#navbarMenu .nav-link.active"));
-  });
+  if (mobileMenu) {
+    mobileMenu.addEventListener("shown.bs.collapse", () => {
+      moveIndicator(document.querySelector("#navbarMenu .nav-link.active"));
+    });
+  }
 
   let ticking = false;
 
@@ -125,7 +135,7 @@
     const progress = Math.min(window.scrollY / Math.max(window.innerHeight * 0.9, 1), 1);
     const isMobile = window.innerWidth < 768;
 
-    navbar.classList.toggle("scrolled", window.scrollY > 30);
+    navbar?.classList.toggle("scrolled", window.scrollY > 30);
 
     if (!reducedMotion.matches && portrait && portraitImage && marquee) {
       portrait.style.setProperty("--portrait-opacity", String(1 - progress * 0.94));
@@ -152,14 +162,29 @@
     });
   }
 
-  setTheme(localStorage.getItem("dsp-theme") === "light" ? "light" : "dark");
+  let savedTheme = "dark";
+
+  try {
+    savedTheme = localStorage.getItem("dsp-theme") === "light" ? "light" : "dark";
+  } catch {
+    // Private browsing can block localStorage; the default theme remains dark.
+  }
+
+  setTheme(savedTheme);
   setActiveSection("beranda");
 
-  themeToggle.addEventListener("click", () => {
-    const nextTheme = root.dataset.theme === "light" ? "dark" : "light";
-    setTheme(nextTheme);
-    localStorage.setItem("dsp-theme", nextTheme);
-  });
+  if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+      const nextTheme = root.dataset.theme === "light" ? "dark" : "light";
+      setTheme(nextTheme);
+
+      try {
+        localStorage.setItem("dsp-theme", nextTheme);
+      } catch {
+        // Theme still changes for the active visit if persistence is unavailable.
+      }
+    });
+  }
 
   window.addEventListener("scroll", requestScrollUpdate, { passive: true });
   window.addEventListener("resize", refreshLayout, { passive: true });
