@@ -440,6 +440,7 @@ body::before { pointer-events: none; }
 .project-visual { display: grid; padding: 8%; place-items: center; border-right: 1px solid var(--border); background: #0b1424; }
 [data-theme="light"] .project-visual { background: #edf5ff; }
 .browser-mockup { width: 100%; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 14px; background: #f1e8d9; box-shadow: 0 24px 48px rgba(0, 0, 0, 0.24); transform: rotate(-2deg); }
+.browser-mockup img { width: 100%; height: auto; display: block; object-fit: cover; }
 [data-theme="light"] .browser-mockup { border-color: rgba(58, 80, 115, 0.14); box-shadow: 0 24px 48px rgba(53, 79, 120, 0.16); }
 .browser-bar { display: flex; height: 32px; padding: 0 11px; align-items: center; gap: 5px; background: #fff; color: #677083; }
 .browser-bar i { width: 7px; height: 7px; border-radius: 50%; background: #d7d7d7; }
