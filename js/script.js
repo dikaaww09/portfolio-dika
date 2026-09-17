@@ -13,7 +13,17 @@
   const themeToggle = document.querySelector("#themeToggle");
   const mobileMenu = document.querySelector("#navbarMenu");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const sectionIds = ["beranda", "perkenalan", "tentang", "keahlian", "proyek", "kontak"];
+  const sectionIds = [
+    "beranda",
+    "perkenalan",
+    "tentang",
+    "perjalanan",
+    "keahlian",
+    "proyek",
+    "pencapaian",
+    "artikel",
+    "kontak",
+  ];
   const visibleSections = new Map();
 
   const year = document.querySelector("#year");
@@ -46,7 +56,11 @@
   }
 
   function setActiveSection(sectionId) {
-    const navigationId = sectionId === "perkenalan" ? "beranda" : sectionId;
+    const navigationId = sectionId === "perkenalan"
+      ? "beranda"
+      : sectionId === "pencapaian"
+        ? "artikel"
+        : sectionId;
     const activeLink = navLinks.find((link) => link.hash === `#${navigationId}`);
 
     if (!activeLink) return;
@@ -102,11 +116,31 @@
     const link = item.querySelector(".nav-link");
 
     item.addEventListener("mouseenter", () => moveIndicator(link));
-    item.addEventListener("click", () => {
-      setActiveSection(link.hash.slice(1));
+    item.addEventListener("click", (event) => {
+      const sectionId = link.hash.slice(1);
+      const target = document.getElementById(sectionId);
+
+      event.preventDefault();
+      setActiveSection(sectionId);
 
       if (mobileMenu?.classList.contains("show") && window.bootstrap) {
         bootstrap.Collapse.getOrCreateInstance(mobileMenu).hide();
+      }
+
+      if (target) {
+        const contentTarget = sectionId === "beranda"
+          ? target
+          : target.querySelector(".container") || target;
+        const navbarOffset = window.innerWidth < 768 ? 82 : 112;
+        const scrollTarget = contentTarget.getBoundingClientRect().top
+          + window.scrollY
+          - navbarOffset;
+
+        window.history.pushState(null, "", link.hash);
+        window.scrollTo({
+          top: Math.max(0, scrollTarget),
+          behavior: reducedMotion.matches ? "auto" : "smooth",
+        });
       }
     });
   });
