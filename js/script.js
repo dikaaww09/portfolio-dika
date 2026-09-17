@@ -56,11 +56,7 @@
   }
 
   function setActiveSection(sectionId) {
-    const navigationId = sectionId === "perkenalan"
-      ? "beranda"
-      : sectionId === "pencapaian"
-        ? "artikel"
-        : sectionId;
+    const navigationId = sectionId === "perkenalan" ? "beranda" : sectionId;
     const activeLink = navLinks.find((link) => link.hash === `#${navigationId}`);
 
     if (!activeLink) return;
